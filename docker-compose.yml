@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  apache:
+    build:
+      context: .
+      dockerfile: docker/apache/Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html:rw
+    user: "1000:www-data"
+
+  sftp:
+    image: atmoz/sftp
+    volumes:
+      - ./public:/home/${SFTP_USER}/upload:rw
+    ports:
+      - "${SFTP_PORT?err}:22"
+    command: "${SFTP_USER?err}:${SFTP_PASSWORD?err}:1000:33:/upload"
+    environment:
+      - CHOWN_USERS=${SFTP_USER}:1000:33
+    user: "root:root"
+    profiles:
+      - sftp
+
+volumes:
+  website_data: 
